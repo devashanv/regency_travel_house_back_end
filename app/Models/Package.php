@@ -1,0 +1,25 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Package extends Model
+{
+    protected $fillable = ['destination_id', 'title', 'description', 'price_per_person', 'duration_days', 'start_date', 'end_date', 'available_slots', 'image_url', 'is_featured'];
+
+    public function destination()
+    {
+        return $this->belongsTo(Destination::class);
+    }
+
+    public function itineraries()
+    {
+        return $this->hasMany(Itinerary::class);
+    }
+
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class);
+    }
+}
