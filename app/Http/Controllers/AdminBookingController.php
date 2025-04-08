@@ -15,7 +15,7 @@ class AdminBookingController extends Controller
     {
         $staff = Auth::guard('staff')->user();
 
-        if ($staff->role !== 'admin' && $staff->role !== 'manager') {
+        if ($staff->role !== 'Admin' && $staff->role !== 'manager') {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -28,7 +28,7 @@ class AdminBookingController extends Controller
     {
         $staff = Auth::guard('staff')->user();
 
-        if ($staff->role !== 'admin' && $staff->role !== 'manager') {
+        if ($staff->role !== 'Admin' && $staff->role !== 'manager') {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -43,7 +43,7 @@ class AdminBookingController extends Controller
     {
         $staff = Auth::guard('staff')->user();
 
-        if ($staff->role !== 'admin' && $staff->role !== 'manager') {
+        if ($staff->role !== 'Admin' && $staff->role !== 'manager') {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
