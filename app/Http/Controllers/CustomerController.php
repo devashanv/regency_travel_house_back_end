@@ -17,7 +17,7 @@ class CustomerController extends Controller
         $validated = $request->validate([
             'full_name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:customers,email',
-            'password' => 'required|string|min:8|confirmed', // Requires password_confirmation field
+            'password' => 'required|string|min:8|confirmed', 
             'phone' => 'nullable|string|max:15',
             'address' => 'nullable|string',
             'country_of_residence' => 'nullable|string',
@@ -77,7 +77,11 @@ class CustomerController extends Controller
 
     public function show(Customer $customer)
     {
-        return response()->json($customer);
+        return response()->json([
+            'id' => $customer->id,
+            'full_name' => $customer->full_name,
+            'email' => $customer->email,
+        ]);
     }
 
     public function update(Request $request, Customer $customer)
