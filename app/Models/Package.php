@@ -22,4 +22,10 @@ class Package extends Model
     {
         return $this->hasMany(Booking::class);
     }
+
+    public function wishlists()
+    {
+        return $this->hasMany(Wishlist::class);
+    }
+
 }
