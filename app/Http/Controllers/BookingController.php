@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Booking;
+use App\Models\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
@@ -40,13 +41,35 @@ class BookingController extends Controller
 
         $package = \App\Models\Package::findOrFail($request->package_id);
         $basePrice = $package->price_per_person * $request->number_of_travelers;
-        $redeem = $request->points_to_redeem ?? 0;
 
-        // Cap redemption to customer's available points
-        $redeem = min($redeem, $customer->loyalty_points);
+        $redeem = floatval($request->points_to_redeem ?? 0);
 
-        // Cap redemption to booking total (no negative totals)
-        $redeem = min($redeem, $basePrice);
+        // Only check redemption logic if customer wants to redeem
+        if ($redeem > 0) {
+            // Step 1: Check if customer has at least 2 confirmed bookings
+            $confirmedCount = $customer->bookings()
+                ->where('status', 'confirmed')
+                ->count();
+
+            if ($confirmedCount < 2) {
+                return response()->json([
+                    'message' => 'You can only redeem points after completing at least 2 confirmed bookings.'
+                ], 403);
+            }
+
+            // Step 2: Fetch non-expired loyalty records
+            $validPoints = $customer->loyaltyHistory()
+                ->where('points_earned', '>', 0)
+                ->where('last_updated', '>', now()->subYears(2))
+                ->sum('points_earned');
+
+            $totalRedeemed = $customer->loyaltyHistory()->sum('points_redeemed');
+            $availablePoints = $validPoints - $totalRedeemed;
+
+            // Step 3: Cap redemption
+            $redeem = min($redeem, $availablePoints);
+            $redeem = min($redeem, $basePrice);
+        }
 
         $finalPrice = $basePrice - $redeem;
 
@@ -65,7 +88,7 @@ class BookingController extends Controller
                 'payment_reference' => null
             ]);
 
-            // If redeeming points, deduct and log
+            // Log redemption if points were used
             if ($redeem > 0) {
                 $customer->decrement('loyalty_points', $redeem);
 
@@ -83,7 +106,10 @@ class BookingController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['message' => 'Booking failed', 'error' => $e->getMessage()], 500);
+            return response()->json([
+                'message' => 'Booking failed',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 }

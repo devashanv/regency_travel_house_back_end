@@ -26,11 +26,6 @@ class Customer extends Authenticatable
         return $this->hasMany(Booking::class);
     }
 
-    public function loyalty()
-    {
-        return $this->hasOne(Loyalty::class);
-    }
-
     public function complaints()
     {
         return $this->hasMany(Complaint::class);

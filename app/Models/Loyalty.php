@@ -14,5 +14,17 @@ class Loyalty extends Model
     {
         return $this->belongsTo(Customer::class);
     }
+
+    public function isExpired(): bool
+    {
+        return now()->diffInYears($this->last_updated) >= 2;
+    }
+
+    public function scopeNotExpired($query)
+    {
+        return $query->where('last_updated', '>', now()->subYears(2));
+    }
+
+
 }
 
