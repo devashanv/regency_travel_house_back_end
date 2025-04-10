@@ -13,7 +13,7 @@ class Customer extends Authenticatable
 {
 
     use HasApiTokens, HasFactory, Notifiable;
-    protected $fillable = ['full_name', 'email', 'password', 'phone', 'address', 'country_of_residence', 'date_of_birth'];
+    protected $fillable = ['full_name', 'email', 'password', 'phone', 'address', 'country_of_residence', 'date_of_birth', 'loyalty_points'];
 
     protected $hidden = ['password'];
 
@@ -45,5 +45,11 @@ class Customer extends Authenticatable
     {
         return $this->hasMany(Quote::class);
     }
+
+    public function loyaltyHistory()
+    {
+        return $this->hasMany(Loyalty::class);
+    }
+
 }
 
