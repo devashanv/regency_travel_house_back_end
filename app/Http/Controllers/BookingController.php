@@ -47,7 +47,8 @@ class BookingController extends Controller
 
         $confirmBookings = Booking::with('package') 
             ->where('customer_id', $customer->id)
-            ->where('status', 'confirmed')
+            // ->where('status', 'confirmed')
+            ->whereIn('status', ['confirmed', 'completed'])
             ->whereDate('travel_date', '>=', now())
             ->orderBy('travel_date')
             ->get();
