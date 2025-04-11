@@ -2,64 +2,62 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Itinerary;
 use Illuminate\Http\Request;
+use App\Models\Itinerary;
+use App\Models\Package;
+use Illuminate\Http\JsonResponse;
 
 class ItineraryController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    // 🔹 View all itineraries for a given package
+    public function index($package_id): JsonResponse
     {
-        //
+        $itineraries = Itinerary::where('package_id', $package_id)
+            ->orderBy('day_number')
+            ->get();
+
+        return response()->json($itineraries);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    //  Add a new itinerary item
+    public function store(Request $request): JsonResponse
     {
-        //
+        $request->validate([
+            'package_id' => 'required|exists:packages,id',
+            'day_number' => 'required|integer|min:1',
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'location' => 'required|string'
+        ]);
+
+        $itinerary = Itinerary::create($request->all());
+
+        return response()->json(['message' => 'Itinerary created', 'data' => $itinerary], 201);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    // 🔹 Update itinerary
+    public function update(Request $request, $id): JsonResponse
     {
-        //
+        $itinerary = Itinerary::findOrFail($id);
+
+        $request->validate([
+            'day_number' => 'nullable|integer|min:1',
+            'title' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'location' => 'required|string'
+        ]);
+
+        $itinerary->update($request->only(['day', 'title', 'description', 'location']));
+
+        return response()->json(['message' => 'Itinerary updated', 'data' => $itinerary]);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Itinerary $itinerary)
+    // 🔹 Delete itinerary
+    public function destroy($id): JsonResponse
     {
-        //
-    }
+        $itinerary = Itinerary::findOrFail($id);
+        $itinerary->delete();
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Itinerary $itinerary)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Itinerary $itinerary)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Itinerary $itinerary)
-    {
-        //
+        return response()->json(['message' => 'Itinerary deleted']);
     }
 }

@@ -20,6 +20,10 @@ class Staff extends Authenticatable implements CanResetPassword
         'password',
     ];
 
+    public const ROLE_ADMIN = 'admin';
+    public const ROLE_MANAGER = 'manager';
+    public const ROLE_SUPPORT = 'support';
+
     protected $hidden = ['password'];
 
     public function complaints()

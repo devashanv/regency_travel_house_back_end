@@ -12,6 +12,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\ItineraryController;
 
 // Public routes
 Route::post('/register', [AuthController::class, 'register']);
@@ -27,6 +28,7 @@ Route::get('/destinations/{id}', [DestinationController::class, 'show']);
 
 Route::post('/customer/register', [CustomerAuthController::class, 'register']);
 Route::post('/customer/login', [CustomerAuthController::class, 'login']);
+Route::get('/packages/{package_id}/itineraries', [ItineraryController::class, 'index']);
 
 // Protected Customer routes (require valid Sanctum token)
 Route::middleware('auth:sanctum')->get('/booking/confirmed', [BookingController::class, 'confirmed']);
@@ -72,6 +74,9 @@ Route::middleware('auth:staff')->group(function () {
     Route::post('/destinations', [DestinationController::class, 'store']);
     Route::put('/destinations/{id}', [DestinationController::class, 'update']);
     Route::delete('/destinations/{id}', [DestinationController::class, 'destroy']);
+    Route::post('/itineraries', [ItineraryController::class, 'store']);
+    Route::put('/itineraries/{id}', [ItineraryController::class, 'update']);
+    Route::delete('/itineraries/{id}', [ItineraryController::class, 'destroy']);
 });
 
 Route::middleware('auth:sanctum')->group(function () {
