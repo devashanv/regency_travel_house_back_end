@@ -21,6 +21,7 @@ class CustomerController extends Controller
             'phone' => 'nullable|string|max:15',
             'address' => 'nullable|string',
             'country_of_residence' => 'nullable|string',
+            'nic' => 'nullable|string',     
             'date_of_birth' => 'nullable|date',
         ]);
 
@@ -31,6 +32,7 @@ class CustomerController extends Controller
             'phone' => $validated['phone'] ?? null,
             'address' => $validated['address'] ?? null,
             'country_of_residence' => $validated['country_of_residence'] ?? null,
+            'nic' => $validated['nic'] ?? null,
             'date_of_birth' => $validated['date_of_birth'] ?? null,
         ]);
 
@@ -84,26 +86,56 @@ class CustomerController extends Controller
         ]);
     }
 
-    public function update(Request $request, Customer $customer)
-    {
-        $validated = $request->validate([
-            'full_name' => 'sometimes|string|max:255',
-            'email' => 'sometimes|string|email|max:255|unique:customers,email,' . $customer->id,
-            'password' => 'nullable|string|min:8|confirmed',
-            'phone' => 'nullable|string|max:15',
-            'address' => 'nullable|string',
-            'country_of_residence' => 'nullable|string',
-            'date_of_birth' => 'nullable|date',
-        ]);
+    // public function update(Request $request, Customer $customer)
+    // {
+    //     $validated = $request->validate([
+    //         'full_name' => 'sometimes|string|max:255',
+    //         'email' => 'sometimes|string|email|max:255|unique:customers,email,' . $customer->id,
+    //         'password' => 'nullable|string|min:8|confirmed',
+    //         'phone' => 'nullable|string|max:15',
+    //         'address' => 'nullable|string',
+    //         'country_of_residence' => 'nullable|string',
+    //         'nic' => 'nullable|string',
+    //         'date_of_birth' => 'nullable|date',
+    //     ]);
 
-        if (isset($validated['password'])) {
-            $validated['password'] = Hash::make($validated['password']);
-        }
+    //     if (isset($validated['password'])) {
+    //         $validated['password'] = Hash::make($validated['password']);
+    //     }
 
-        $customer->update($validated);
+    //     $customer->update($validated);
 
-        return response()->json($customer);
+    //     return response()->json($customer);
+    // }
+
+
+    public function update(Request $request, Customer $customer): JsonResponse
+{
+    if (Auth::id() !== $customer->id) {
+        return response()->json(['error' => 'Unauthorized'], 403);
     }
+
+    $validated = $request->validate([
+        'full_name' => 'sometimes|string|max:255',
+        'email' => 'sometimes|string|email|max:255|unique:customers,email,' . $customer->id,
+        'password' => 'nullable|string|min:8|confirmed',
+        'phone' => 'nullable|string|max:15',
+        'address' => 'nullable|string',
+        'country_of_residence' => 'nullable|string',
+        'nic' => 'nullable|string',
+        'date_of_birth' => 'nullable|date',
+        'gender' => 'nullable|string|in:Male,Female,Prefer not to say',
+    ]);
+
+    if (isset($validated['password'])) {
+        $validated['password'] = Hash::make($validated['password']);
+    }
+
+    $customer->update($validated);
+
+    return response()->json($customer);
+}
+
 
     public function destroy(Customer $customer)
     {
