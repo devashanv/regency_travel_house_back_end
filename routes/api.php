@@ -19,6 +19,7 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/packages', [PackageController::class, 'index']);
 Route::get('/packages/{id}', [PackageController::class, 'show']);
+
 Route::post('/staff/login', [StaffAuthController::class, 'login']);
 Route::post('/staff/login', [StaffAuthController::class, 'login']);
 Route::post('/customers/register', [CustomerController::class, 'register']);
