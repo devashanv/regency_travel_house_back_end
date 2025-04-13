@@ -5,7 +5,6 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PackageController;
 use App\Http\Controllers\StaffAuthController;
 use App\Http\Controllers\DestinationController;
-// use App\Http\Controllers\BookingController;
 use App\Http\Controllers\CustomerAuthController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\AdminBookingController;
@@ -40,7 +39,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/bookings', [BookingController::class, 'index']); // customer view
     Route::get('/bookings/{id}', [BookingController::class, 'show']);
-    // Route::get('/booking/confirmed', [BookingController::class,'confirmed']);
 
 
     Route::get('/customer/loyalty-summary', [CustomerController::class, 'loyaltySummary']);
@@ -73,8 +71,6 @@ Route::middleware('auth:staff')->group(function () {
     Route::get('/admin/bookings', [AdminBookingController::class, 'index']);
     Route::get('/admin/bookings/{id}', [AdminBookingController::class, 'show']);
     Route::put('/admin/bookings/{id}', [AdminBookingController::class, 'update']);
-
-
 
 
 
