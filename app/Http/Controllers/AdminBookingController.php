@@ -43,7 +43,7 @@ class AdminBookingController extends Controller
     {
         $staff = Auth::guard('staff')->user();
 
-        if ($staff->role !== 'Admin' && $staff->role !== 'manager') {
+        if (!in_array($staff->role, ['Admin', 'manager'])) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -53,25 +53,22 @@ class AdminBookingController extends Controller
         }
 
         $request->validate([
-            'status' => 'nullable|in:pending,confirmed,cancelled,completed',
+            'status' => 'nullable|in:pending,confirmed,completed,cancelled',
             'payment_reference' => 'nullable|string|max:255'
         ]);
 
-        // Store current status before update
         $oldStatus = $booking->status;
-
-        // Update the booking
         $booking->update($request->only(['status', 'payment_reference']));
 
-        //  Loyalty Points Logic
-        if ($request->status === 'confirmed' && $oldStatus !== 'confirmed') {
-            $customer = $booking->customer;
+        $newStatus = $request->status;
+        $customer = $booking->customer;
+
+        // Loyalty logic ONLY when transitioning to confirmed/completed from a non-qualified state
+        if (in_array($newStatus, ['confirmed', 'completed']) && !in_array($oldStatus, ['confirmed', 'completed'])) {
             $pointsEarned = $booking->total_price * 0.1;
 
-            // Add points to customer's total
             $customer->increment('loyalty_points', $pointsEarned);
 
-            // Log the transaction in loyalty history
             Loyalty::create([
                 'customer_id' => $customer->id,
                 'points_earned' => $pointsEarned,
@@ -81,9 +78,8 @@ class AdminBookingController extends Controller
         }
 
         return response()->json([
-            'message' => 'Booking updated',
+            'message' => 'Booking updated successfully.',
             'booking' => $booking->fresh(['customer', 'package'])
         ]);
     }
-
 }

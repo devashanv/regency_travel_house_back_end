@@ -8,7 +8,7 @@ use App\Http\Controllers\DestinationController;
 // use App\Http\Controllers\BookingController;
 use App\Http\Controllers\CustomerAuthController;
 use App\Http\Controllers\CustomerController;
-// use App\Http\Controllers\AdminBookingController;
+use App\Http\Controllers\AdminBookingController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\BookingController;
@@ -43,8 +43,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Route::get('/booking/confirmed', [BookingController::class,'confirmed']);
 
 
-
-
+    Route::get('/customer/loyalty-summary', [CustomerController::class, 'loyaltySummary']);
     Route::post('/bookings', [BookingController::class, 'store']);
     Route::get('/customer/profile', [CustomerAuthController::class, 'profile']);
     Route::put('/customer/profile', [CustomerController::class, 'profile']);
@@ -67,9 +66,18 @@ Route::middleware('auth:staff')->group(function () {
     Route::post('/staff/register', [StaffAuthController::class, 'register']);
     Route::get('/staff/profile', [StaffAuthController::class, 'profile']);
     Route::post('/staff/logout', [StaffAuthController::class, 'logout']);
-    // Route::get('/admin/bookings', [AdminBookingController::class, 'index']);
-    // Route::get('/admin/bookings/{id}', [AdminBookingController::class, 'show']);
-    // Route::put('/admin/bookings/{id}', [AdminBookingController::class, 'update']);
+
+
+
+
+    Route::get('/admin/bookings', [AdminBookingController::class, 'index']);
+    Route::get('/admin/bookings/{id}', [AdminBookingController::class, 'show']);
+    Route::put('/admin/bookings/{id}', [AdminBookingController::class, 'update']);
+
+
+
+
+
     Route::get('/staff/profile', [StaffAuthController::class, 'profile']);
     Route::post('/staff/logout', [StaffAuthController::class, 'logout']);
     Route::post('/destinations', [DestinationController::class, 'store']);

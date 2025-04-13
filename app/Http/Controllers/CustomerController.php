@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\JsonResponse;
+// use Carbon\Carbon;
 
 
 class CustomerController extends Controller
@@ -17,11 +18,11 @@ class CustomerController extends Controller
         $validated = $request->validate([
             'full_name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:customers,email',
-            'password' => 'required|string|min:8|confirmed', 
+            'password' => 'required|string|min:8|confirmed',
             'phone' => 'nullable|string|max:15',
             'address' => 'nullable|string',
             'country_of_residence' => 'nullable|string',
-            'nic' => 'nullable|string',     
+            'nic' => 'nullable|string',
             'date_of_birth' => 'nullable|date',
         ]);
 
@@ -85,56 +86,32 @@ class CustomerController extends Controller
             'email' => $customer->email,
         ]);
     }
-
-    // public function update(Request $request, Customer $customer)
-    // {
-    //     $validated = $request->validate([
-    //         'full_name' => 'sometimes|string|max:255',
-    //         'email' => 'sometimes|string|email|max:255|unique:customers,email,' . $customer->id,
-    //         'password' => 'nullable|string|min:8|confirmed',
-    //         'phone' => 'nullable|string|max:15',
-    //         'address' => 'nullable|string',
-    //         'country_of_residence' => 'nullable|string',
-    //         'nic' => 'nullable|string',
-    //         'date_of_birth' => 'nullable|date',
-    //     ]);
-
-    //     if (isset($validated['password'])) {
-    //         $validated['password'] = Hash::make($validated['password']);
-    //     }
-
-    //     $customer->update($validated);
-
-    //     return response()->json($customer);
-    // }
-
-
     public function update(Request $request, Customer $customer): JsonResponse
-{
-    if (Auth::id() !== $customer->id) {
-        return response()->json(['error' => 'Unauthorized'], 403);
+    {
+        if (Auth::id() !== $customer->id) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $validated = $request->validate([
+            'full_name' => 'sometimes|string|max:255',
+            'email' => 'sometimes|string|email|max:255|unique:customers,email,' . $customer->id,
+            'password' => 'nullable|string|min:8|confirmed',
+            'phone' => 'nullable|string|max:15',
+            'address' => 'nullable|string',
+            'country_of_residence' => 'nullable|string',
+            'nic' => 'nullable|string',
+            'date_of_birth' => 'nullable|date',
+            'gender' => 'nullable|string|in:Male,Female,Prefer not to say',
+        ]);
+
+        if (isset($validated['password'])) {
+            $validated['password'] = Hash::make($validated['password']);
+        }
+
+        $customer->update($validated);
+
+        return response()->json($customer);
     }
-
-    $validated = $request->validate([
-        'full_name' => 'sometimes|string|max:255',
-        'email' => 'sometimes|string|email|max:255|unique:customers,email,' . $customer->id,
-        'password' => 'nullable|string|min:8|confirmed',
-        'phone' => 'nullable|string|max:15',
-        'address' => 'nullable|string',
-        'country_of_residence' => 'nullable|string',
-        'nic' => 'nullable|string',
-        'date_of_birth' => 'nullable|date',
-        'gender' => 'nullable|string|in:Male,Female,Prefer not to say',
-    ]);
-
-    if (isset($validated['password'])) {
-        $validated['password'] = Hash::make($validated['password']);
-    }
-
-    $customer->update($validated);
-
-    return response()->json($customer);
-}
 
 
     public function destroy(Customer $customer)
@@ -142,5 +119,46 @@ class CustomerController extends Controller
         $customer->delete();
 
         return response()->json(['message' => 'Customer deleted successfully']);
+    }
+    public function loyaltySummary(): JsonResponse
+    {
+        $customer = Auth::user();
+
+        $validEarned = $customer->loyaltyHistory()
+            ->notExpired()
+            ->sum('points_earned');
+
+        $totalRedeemed = $customer->loyaltyHistory()
+            ->sum('points_redeemed');
+
+        $availablePoints = $validEarned - $totalRedeemed;
+
+        // 🔥 Determine current tier
+        $tier = 'Bronze';
+        if ($validEarned >= 1000) {
+            $tier = 'Gold';
+        } elseif ($validEarned >= 500) {
+            $tier = 'Silver';
+        }
+
+        return response()->json([
+            'customer_id' => $customer->id,
+            'available_points' => round($availablePoints, 2),
+            'valid_earned' => round($validEarned, 2),
+            'total_redeemed' => round($totalRedeemed, 2),
+            'tier' => $tier,
+            'history' => $customer->loyaltyHistory()
+                ->orderBy('last_updated', 'desc')
+                ->get()
+                ->map(function ($record) {
+                    return [
+                        'earned' => $record->points_earned,
+                        'redeemed' => $record->points_redeemed,
+                        'date' => date('Y-m-d', strtotime($record->last_updated)),
+                        'expired' => $record->isExpired(),
+                        'membership_tier' => $record->tier,
+                    ];
+                })
+        ]);
     }
 }
