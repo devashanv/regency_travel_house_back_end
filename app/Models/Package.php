@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Package extends Model
 {
-    protected $fillable = ['destination_id', 'title', 'description', 'price_per_person', 'duration_days', 'start_date', 'end_date', 'available_slots', 'image_url', 'is_featured'];
+    protected $fillable = ['destination_id', 'title', 'country','description','activities','include','exclude', 'price_per_person', 'duration_days', 'start_date', 'end_date', 'available_slots', 'image_url', 'is_featured'];
 
     public function destination()
     {
@@ -22,4 +22,10 @@ class Package extends Model
     {
         return $this->hasMany(Booking::class);
     }
+
+    public function wishlists()
+    {
+        return $this->hasMany(Wishlist::class);
+    }
+
 }

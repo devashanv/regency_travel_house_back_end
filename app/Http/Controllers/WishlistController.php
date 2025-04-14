@@ -2,64 +2,64 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Wishlist;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Wishlist;
 
 class WishlistController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    // Get all wishlist items for the logged-in customer
     public function index()
     {
-        //
+        $customer = Auth::user();
+
+        $wishlist = Wishlist::with('package')
+            ->where('customer_id', $customer->id)
+            ->orderBy('added_on', 'desc')
+            ->get();
+
+        return response()->json($wishlist);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
+    // Add a new package to wishlist
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'package_id' => 'required|exists:packages,id',
+        ]);
+
+        $customer = Auth::user();
+
+        // Prevent duplicates
+        if (Wishlist::where('customer_id', $customer->id)
+            ->where('package_id', $request->package_id)->exists()) {
+            return response()->json(['message' => 'Already in wishlist'], 409);
+        }
+
+        $wishlist = Wishlist::create([
+            'customer_id' => $customer->id,
+            'package_id' => $request->package_id,
+            'added_on' => now(),
+        ]);
+
+        return response()->json(['message' => 'Added to wishlist', 'wishlist' => $wishlist], 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Wishlist $wishlist)
+    // Remove a wishlist item
+    public function destroy($id)
     {
-        //
-    }
+        $customer = Auth::user();
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Wishlist $wishlist)
-    {
-        //
-    }
+        $wishlist = Wishlist::where('id', $id)
+            ->where('customer_id', $customer->id)
+            ->first();
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Wishlist $wishlist)
-    {
-        //
-    }
+        if (!$wishlist) {
+            return response()->json(['message' => 'Wishlist item not found'], 404);
+        }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Wishlist $wishlist)
-    {
-        //
+        $wishlist->delete();
+
+        return response()->json(['message' => 'Removed from wishlist']);
     }
 }

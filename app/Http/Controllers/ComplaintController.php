@@ -4,62 +4,77 @@ namespace App\Http\Controllers;
 
 use App\Models\Complaint;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ComplaintController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of all complaints (admin/staff view).
      */
     public function index()
     {
-        //
+        $complaints = Complaint::with(['customer', 'booking', 'staff'])->latest()->get();
+        return response()->json($complaints);
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
+     * Store a newly created complaint from a customer.
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'booking_id' => 'nullable|exists:bookings,id',
+            'subject' => 'required|string|max:255',
+            'message' => 'required|string',
+        ]);
+
+        $complaint = Complaint::create([
+            'customer_id' => Auth::id(),
+            'booking_id' => $validated['booking_id'] ?? null,
+            'subject' => $validated['subject'],
+            'message' => $validated['message'],
+            'status' => 'in progress',
+            'submitted_at' => now(),
+        ]);
+
+        return response()->json(['message' => 'Complaint submitted successfully', 'complaint' => $complaint], 201);
     }
 
     /**
-     * Display the specified resource.
+     * Display a specific complaint.
      */
     public function show(Complaint $complaint)
     {
-        //
+        $complaint->load(['customer', 'booking', 'staff']);
+        return response()->json($complaint);
     }
 
     /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Complaint $complaint)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
+     * Update a complaint (for marking resolved or assigning staff).
      */
     public function update(Request $request, Complaint $complaint)
     {
-        //
+        $validated = $request->validate([
+            'status' => 'required|in:pending,in_progress,resolved',
+            'handled_by' => 'nullable|exists:staff,id',
+            'resolved_at' => 'nullable|date',
+        ]);
+
+        $complaint->update([
+            'status' => $validated['status'],
+            'handled_by' => $validated['handled_by'] ?? $complaint->handled_by,
+            'resolved_at' => $validated['status'] === 'resolved' ? now() : null,
+        ]);
+
+        return response()->json(['message' => 'Complaint updated successfully', 'complaint' => $complaint]);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Delete a complaint.
      */
     public function destroy(Complaint $complaint)
     {
-        //
+        $complaint->delete();
+        return response()->json(['message' => 'Complaint deleted successfully']);
     }
 }

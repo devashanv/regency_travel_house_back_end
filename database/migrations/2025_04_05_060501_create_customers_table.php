@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('phone')->nullable();
             $table->text('address')->nullable();
             $table->string('country_of_residence')->nullable();
+            $table->string('nic')->nullable();
             $table->date('date_of_birth')->nullable();
             $table->timestamps();
         });
