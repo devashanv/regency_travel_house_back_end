@@ -111,6 +111,7 @@
 // });
 
 
+>>>>>>> 41f19fbc5f85f9149c325870bae5d578b7dfb02c
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PackageController;
@@ -123,6 +124,12 @@ use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ItineraryController;
+use App\Http\Controllers\QuoteController;
+use App\Http\Controllers\AdminQuoteController;
+use App\Http\Controllers\LoyaltyController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ImageController;
+
 
 /*Public Routes*/
 Route::post('/register', [AuthController::class, 'register']);
@@ -133,6 +140,18 @@ Route::post('/staff/register', [StaffAuthController::class, 'register']);
 
 Route::post('/customers/register', [CustomerController::class, 'register']);
 Route::post('/customers/login', [CustomerController::class, 'login']);
+
+// ---------------------
+// Public Routes
+// ---------------------
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+Route::get('/packages', [PackageController::class, 'index']);
+Route::get('/packages/{id}', [PackageController::class, 'show']);
+Route::get('/destinations', [DestinationController::class, 'index']);
+Route::get('/destinations/{id}', [DestinationController::class, 'show']);
+Route::post('/staff/login', [StaffAuthController::class, 'login']);
+
 Route::post('/customer/register', [CustomerAuthController::class, 'register']);
 Route::post('/customer/login', [CustomerAuthController::class, 'login']);
 
@@ -145,12 +164,19 @@ Route::get('/destinations/{id}', [DestinationController::class, 'show']);
 Route::get('/packages/{package_id}/itineraries', [ItineraryController::class, 'index']);
 
 /*Protected Routes - Customer (Sanctum)*/
+// ---------------------
+// Customer Routes
+// ---------------------
 Route::middleware('auth:sanctum')->group(function () {
     // Auth
     Route::get('/profile', [AuthController::class, 'profile']);
     Route::post('/logout', [AuthController::class, 'logout']);
 
+
     // Customer Profile & Loyalty
+    Route::get('/bookings', [BookingController::class, 'index']);
+    Route::get('/bookings/{id}', [BookingController::class, 'show']);
+    Route::post('/bookings', [BookingController::class, 'store']);
     Route::get('/customer/profile', [CustomerAuthController::class, 'profile']);
     Route::put('/customer/profile', [CustomerController::class, 'profile']);
     Route::post('/customer/logout', [CustomerAuthController::class, 'logout']);
@@ -205,6 +231,23 @@ Route::middleware('auth:staff')->group(function () {
     Route::put('/admin/bookings/{id}', [AdminBookingController::class, 'update']);
 
     // Packages
+
+    Route::get('/wishlist', [WishlistController::class, 'index']);
+    Route::post('/wishlist', [WishlistController::class, 'store']);
+    Route::delete('/wishlist/{id}', [WishlistController::class, 'destroy']);
+
+    Route::get('/customer/loyalty', [CustomerAuthController::class, 'loyaltyPoints']);
+    Route::get('/customer/loyalty/history', [CustomerAuthController::class, 'loyaltyHistory']);
+
+    Route::get('/quotes', [QuoteController::class, 'index']);
+    Route::post('/quotes', [QuoteController::class, 'store']);
+});
+
+// Shared Staff Routes
+
+Route::middleware('auth:staff')->group(function () {
+    Route::get('/staff/profile', [StaffAuthController::class, 'profile']);
+    Route::post('/staff/logout', [StaffAuthController::class, 'logout']);
     Route::post('/packages', [PackageController::class, 'store']);
     Route::put('/packages/{id}', [PackageController::class, 'update']);
     Route::delete('/packages/{id}', [PackageController::class, 'destroy']);
@@ -221,4 +264,47 @@ Route::middleware('auth:staff')->group(function () {
 
     // Customers
     Route::get('/customer/all', [CustomerController::class, 'index']);
+    Route::post('/itineraries', [ItineraryController::class, 'store']);
+    Route::put('/itineraries/{id}', [ItineraryController::class, 'update']);
+    Route::delete('/itineraries/{id}', [ItineraryController::class, 'destroy']);
+
+    Route::post('/staff/register', [StaffAuthController::class, 'register']);
+
+    Route::get('/dashboard/stats', [DashboardController::class, 'staffOverview']);
+    Route::get('/dashboard/recent', [DashboardController::class, 'recentActivities']);
+    Route::get('/staff/role', [DashboardController::class, 'getRole']);
+});
+
+// ---------------------
+// Admin-only Routes
+// ---------------------
+Route::middleware(['auth:staff', 'staff.role:Admin'])->group(function () {
+    Route::get('/admin/bookings', [AdminBookingController::class, 'index']);
+    Route::get('/admin/bookings/{id}', [AdminBookingController::class, 'show']);
+
+    Route::get('/admin/quotes', [AdminQuoteController::class, 'index']);
+    Route::get('/admin/quotes/{id}', [AdminQuoteController::class, 'show']);
+    Route::put('/admin/quotes/{id}/respond', [AdminQuoteController::class, 'respond']);
+
+    Route::get('/images', [ImageController::class, 'index']);
+    Route::post('/images', [ImageController::class, 'store']);
+    Route::get('/images/{id}', [ImageController::class, 'show']);
+    Route::delete('/images/{id}', [ImageController::class, 'destroy']);
+});
+
+// ---------------------
+// Admin or Manager Routes
+// ---------------------
+Route::middleware(['auth:staff', 'staff.role:Admin,Manager'])->group(function () {
+    Route::put('/admin/bookings/{id}', [AdminBookingController::class, 'update']);
+
+    // Loyalty Point Management
+    Route::get('/loyalty/customers', [LoyaltyController::class, 'index']);             // List all customers with loyalty
+    Route::get('/loyalty/customers/{id}', [LoyaltyController::class, 'show']);         // View one customer's loyalty
+    Route::put('/loyalty/customers/{id}/update', [LoyaltyController::class, 'update']); // Update points
+    Route::post('/loyalty/customers/{id}/add', [LoyaltyController::class, 'addPoints']); // Add extra points
+
+    // Customer Profiles
+    Route::get('/admin/customers', [CustomerAuthController::class, 'all']);            // List all customers
+    Route::get('/admin/customers/{id}', [CustomerAuthController::class, 'details']);   // View specific customer
 });
