@@ -81,4 +81,22 @@ class CustomerAuthController extends Controller
 
         return response()->json($history);
     }
+
+    public function all(): JsonResponse
+    {
+        $customers = \App\Models\Customer::orderBy('created_at', 'desc')->get();
+        return response()->json($customers);
+    }
+
+    public function details($id): JsonResponse
+    {
+        $customer = \App\Models\Customer::find($id);
+
+        if (! $customer) {
+            return response()->json(['message' => 'Customer not found'], 404);
+        }
+
+        return response()->json($customer);
+    }
+
 }
