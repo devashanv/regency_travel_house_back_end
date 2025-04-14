@@ -73,9 +73,26 @@ class CustomerController extends Controller
         return response()->json(['message' => 'Logged out successfully']);
     }
 
+    // public function index()
+    // {
+    //     return response()->json(Customer::all());
+    // }
+
+    // public function index()
+    // {
+    //     $customers = Customer::withCount('bookings')->get();
+
+    //     return response()->json($customers);
+    // }
+
     public function index()
     {
-        return response()->json(Customer::all());
+        $customers = Customer::withCount('bookings')
+            ->withSum('loyaltyHistory as earned_points', 'points_earned')
+            ->withSum('loyaltyHistory as redeemed_points', 'points_redeemed')
+            ->get();
+
+        return response()->json($customers);
     }
 
     public function show(Customer $customer)
@@ -86,6 +103,7 @@ class CustomerController extends Controller
             'email' => $customer->email,
         ]);
     }
+
     public function update(Request $request, Customer $customer): JsonResponse
     {
         if (Auth::id() !== $customer->id) {
@@ -109,7 +127,6 @@ class CustomerController extends Controller
         }
 
         $customer->update($validated);
-
         return response()->json($customer);
     }
 
@@ -133,7 +150,7 @@ class CustomerController extends Controller
 
         $availablePoints = $validEarned - $totalRedeemed;
 
-        // 🔥 Determine current tier
+
         $tier = 'Bronze';
         if ($validEarned >= 1000) {
             $tier = 'Gold';

@@ -82,4 +82,15 @@ class AdminBookingController extends Controller
             'booking' => $booking->fresh(['customer', 'package'])
         ]);
     }
+    //Admin dashboard
+    public function summary(): JsonResponse
+    {
+        return response()->json([
+            'total_packages' => \App\Models\Package::count(),
+            'upcoming_bookings' => \App\Models\Booking::whereDate('travel_date', '>', now())->count(),
+            'pending_quotes' => \App\Models\Quote::where('status', 'pending')->count(),
+            'loyalty_customers' => \App\Models\Loyalty::where('points_earned', '>', 0)->count(),
+            'registered_customers' => \App\Models\Customer::count(),
+        ]);
+    }
 }

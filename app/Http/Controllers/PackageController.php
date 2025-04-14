@@ -53,14 +53,14 @@ class PackageController extends Controller
     // }
 
     public function show(int $id): JsonResponse
-{
+    {
         $package = Package::with(['destination', 'itineraries'])->find($id);
-    if (!$package) {
-        return response()->json(['message' => 'Package not found'], 404);
-    }
+        if (!$package) {
+            return response()->json(['message' => 'Package not found'], 404);
+        }
 
-    return response()->json($package);
-}
+        return response()->json($package);
+    }
 
 
     public function update(Request $request, int $id): JsonResponse
