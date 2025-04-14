@@ -27,7 +27,7 @@
 // Route::post('/customer/register', [CustomerAuthController::class, 'register']);
 // Route::post('/customer/login', [CustomerAuthController::class, 'login']);
 // Route::get('/packages/{package_id}/itineraries', [ItineraryController::class,'index']);
- 
+
 // // Protected Customer routes (require valid Sanctum token)            
 // Route::middleware('auth:sanctum')->get('/booking/confirmed', [BookingController::class, 'confirmed']);
 
@@ -111,7 +111,7 @@
 // });
 
 
->>>>>>> 41f19fbc5f85f9149c325870bae5d578b7dfb02c
+
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PackageController;
@@ -132,11 +132,12 @@ use App\Http\Controllers\ImageController;
 
 
 /*Public Routes*/
+
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::post('/staff/login', [StaffAuthController::class, 'login']);
-Route::post('/staff/register', [StaffAuthController::class, 'register']);
+// Route::post('/staff/register', [StaffAuthController::class, 'register']);
 
 Route::post('/customers/register', [CustomerController::class, 'register']);
 Route::post('/customers/login', [CustomerController::class, 'login']);
@@ -279,6 +280,8 @@ Route::middleware('auth:staff')->group(function () {
 // Admin-only Routes
 // ---------------------
 Route::middleware(['auth:staff', 'staff.role:Admin'])->group(function () {
+    Route::post('/staff/register', [StaffAuthController::class, 'register']);
+
     Route::get('/admin/bookings', [AdminBookingController::class, 'index']);
     Route::get('/admin/bookings/{id}', [AdminBookingController::class, 'show']);
 

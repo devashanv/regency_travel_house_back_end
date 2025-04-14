@@ -14,10 +14,16 @@ class Quote extends Model
         return $this->belongsTo(Customer::class);
     }
 
-    /*public function destination()
-    {
-        return $this->belongsTo(Destination::class);
-    }*/
+    // public function destination()
+    // {
+    //     return $this->belongsTo(Destination::class);
+    // }
+
+    public function destination()
+{
+    return $this->belongsTo(Destination::class);
+}
+
     public function package()
     {
         return $this->belongsTo(Package::class);

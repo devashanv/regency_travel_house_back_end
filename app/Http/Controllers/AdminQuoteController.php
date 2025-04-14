@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Quote;
+use App\Models\Destination;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -16,9 +18,24 @@ class AdminQuoteController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        $quotes = Quote::with(['customer', 'package', 'respondedBy'])->orderBy('created_at', 'desc')->get();
+        $quotes = Quote::with(['customer', 'destination', 'package', 'respondedBy'])->orderBy('created_at', 'desc')->get();
         return response()->json($quotes);
     }
+
+    // public function show($id)
+    // {
+    //     $staff = Auth::guard('staff')->user();
+
+    //     if (!in_array($staff->role, ['Admin', 'manager'])) {
+    //         return response()->json(['message' => 'Unauthorized'], 403);
+    //     }
+
+    //     $quote = Quote::with(['customer', 'package', 'respondedBy'])->find($id);
+
+    //     return $quote
+    //         ? response()->json($quote)
+    //         : response()->json(['message' => 'Quote not found'], 404);
+    // }
 
     public function show($id)
     {
@@ -28,45 +45,137 @@ class AdminQuoteController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        $quote = Quote::with(['customer', 'package', 'respondedBy'])->find($id);
+        $quote = Quote::with(['customer', 'destination', 'respondedBy'])->find($id);
 
         return $quote
             ? response()->json($quote)
             : response()->json(['message' => 'Quote not found'], 404);
     }
 
+    //     public function show($id)
+    // {
+    //     $staff = Auth::guard('staff')->user();
+
+    //     if (!in_array($staff->role, ['Admin', 'manager'])) {
+    //         return response()->json(['message' => 'Unauthorized'], 403);
+    //     }
+
+    //     // $quote = Quote::with(['customer', 'package.destination', 'respondedBy'])->find($id);
+    //     $quote = Quote::with(['customer', 'destination', 'respondedBy'])->orderBy('created_at', 'desc')->get();
+
+    //     return $quote
+    //         ? response()->json($quote)
+    //         : response()->json(['message' => 'Quote not found'], 404);
+    // }
+
+
+    // public function respond(Request $request, $id)
+    // {
+    //     $staff = Auth::guard('staff')->user();
+
+    //     if (!in_array($staff->role, ['Admin', 'manager'])) {
+    //         return response()->json(['message' => 'Unauthorized'], 403);
+    //     }
+
+    //     $request->validate([
+    //         'estimated_price' => 'required|numeric|min:0',
+    //         'status' => 'required|in:responded,rejected'
+    //     ]);
+
+    //     $quote = Quote::find($id);
+
+    //     if (!$quote) {
+    //         return response()->json(['message' => 'Quote not found'], 404);
+    //     }
+
+    //     if ($quote->status !== 'pending') {
+    //         return response()->json(['message' => 'This quote has already been responded to.'], 409);
+    //     }
+
+    //     $quote->update([
+    //         'estimated_price' => $request->estimated_price,
+    //         'status' => $request->status,
+    //         'responded_by' => $staff->id
+    //     ]);
+
+    //     return response()->json([
+    //         'message' => 'Quote responded successfully.',
+    //         'quote' => $quote->load('customer', 'package', 'respondedBy')
+    //     ]);
+    // }
+    // public function respond(Request $request, $id)
+    // {
+    //     $staff = Auth::guard('staff')->user();
+
+    //     if (!in_array($staff->role, ['Admin', 'manager'])) {
+    //         return response()->json(['message' => 'Unauthorized'], 403);
+    //     }
+
+    //     // $request->validate([
+    //     //     'estimated_price' => 'required|numeric|min:0',
+    //     //     'status' => 'required|in:responded,expired'
+    //     // ]);
+
+    //     $request->validate([
+    //         'estimated_price' => 'required|numeric|min:0',
+    //         'status' => 'required|in:responded,expired'
+    //     ]);
+        
+
+    //     $quote = Quote::find($id);
+
+    //     if (!$quote) {
+    //         return response()->json(['message' => 'Quote not found'], 404);
+    //     }
+
+    //     if ($quote->status !== 'pending') {
+    //         return response()->json(['message' => 'This quote has already been responded to.'], 409);
+    //     }
+
+    //     $quote->update([
+    //         'estimated_price' => $request->estimated_price,
+    //         'status' => $request->status,
+    //         'responded_by' => $staff->id
+    //     ]);
+
+    //     return response()->json([
+    //         'message' => 'Quote responded successfully.',
+    //         'quote' => $quote->load('customer', 'destination', 'respondedBy')
+    //     ]);
+    // }
     public function respond(Request $request, $id)
-    {
-        $staff = Auth::guard('staff')->user();
+{
+    $staff = Auth::guard('staff')->user();
 
-        if (!in_array($staff->role, ['Admin', 'manager'])) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
-
-        $request->validate([
-            'estimated_price' => 'required|numeric|min:0',
-            'status' => 'required|in:responded,rejected'
-        ]);
-
-        $quote = Quote::find($id);
-
-        if (!$quote) {
-            return response()->json(['message' => 'Quote not found'], 404);
-        }
-
-        if ($quote->status !== 'pending') {
-            return response()->json(['message' => 'This quote has already been responded to.'], 409);
-        }
-
-        $quote->update([
-            'estimated_price' => $request->estimated_price,
-            'status' => $request->status,
-            'responded_by' => $staff->id
-        ]);
-
-        return response()->json([
-            'message' => 'Quote responded successfully.',
-            'quote' => $quote->load('customer', 'package', 'respondedBy')
-        ]);
+    if (!in_array($staff->role, ['Admin', 'manager'])) {
+        return response()->json(['message' => 'Unauthorized'], 403);
     }
+
+    $request->validate([
+        'estimated_price' => 'required|numeric|min:0',
+        'status' => 'required|in:responded,expired'
+    ]);
+
+    $quote = Quote::find($id);
+
+    if (!$quote) {
+        return response()->json(['message' => 'Quote not found'], 404);
+    }
+
+    if ($quote->status !== 'pending') {
+        return response()->json(['message' => 'This quote has already been responded to.'], 409);
+    }
+
+    $quote->update([
+        'estimated_price' => $request->estimated_price,
+        'status' => $request->status,
+        'responded_by' => $staff->id
+    ]);
+
+    return response()->json([
+        'message' => 'Quote responded successfully.',
+        'quote' => $quote->load('customer', 'destination', 'respondedBy')
+    ]);
+}
+
 }

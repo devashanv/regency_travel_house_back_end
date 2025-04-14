@@ -82,6 +82,7 @@ class AdminBookingController extends Controller
             'booking' => $booking->fresh(['customer', 'package'])
         ]);
     }
+    
     //Admin dashboard
     public function summary(): JsonResponse
     {
