@@ -13,6 +13,8 @@ use App\Http\Controllers\ItineraryController;
 use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\AdminQuoteController;
 use App\Http\Controllers\LoyaltyController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ImageController;
 
 // ---------------------
 // Public Routes
@@ -73,6 +75,10 @@ Route::middleware('auth:staff')->group(function () {
     Route::delete('/itineraries/{id}', [ItineraryController::class, 'destroy']);
 
     Route::post('/staff/register', [StaffAuthController::class, 'register']);
+
+    Route::get('/dashboard/stats', [DashboardController::class, 'staffOverview']);
+    Route::get('/dashboard/recent', [DashboardController::class, 'recentActivities']);
+    Route::get('/staff/role', [DashboardController::class, 'getRole']);
 });
 
 // ---------------------
@@ -85,6 +91,11 @@ Route::middleware(['auth:staff', 'staff.role:Admin'])->group(function () {
     Route::get('/admin/quotes', [AdminQuoteController::class, 'index']);
     Route::get('/admin/quotes/{id}', [AdminQuoteController::class, 'show']);
     Route::put('/admin/quotes/{id}/respond', [AdminQuoteController::class, 'respond']);
+
+    Route::get('/images', [ImageController::class, 'index']);
+    Route::post('/images', [ImageController::class, 'store']);
+    Route::get('/images/{id}', [ImageController::class, 'show']);
+    Route::delete('/images/{id}', [ImageController::class, 'destroy']);
 });
 
 // ---------------------
