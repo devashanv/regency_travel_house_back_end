@@ -19,6 +19,12 @@ class ItineraryController extends Controller
         return response()->json($itineraries);
     }
 
+    public function allWithItineraries(): JsonResponse
+    {
+        $packages = Package::with('itineraries')->get();
+        return response()->json($packages);
+    }
+
     //  Add a new itinerary item
     public function store(Request $request): JsonResponse
     {

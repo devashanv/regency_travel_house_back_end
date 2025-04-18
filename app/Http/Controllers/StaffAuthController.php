@@ -128,4 +128,44 @@ class StaffAuthController extends Controller
             'staff' => $staff
         ], 201);
     }
+
+    public function index()
+    {
+        $staff = Staff::all();
+        return response()->json($staff);
+    }
+
+
+    public function update(Request $request, $id): JsonResponse
+    {
+        $admin = auth('staff')->user();
+        if (!$admin || $admin->role !== 'Admin') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $staff = Staff::findOrFail($id);
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:staff,email,' . $id,
+            'role' => 'required|in:Admin,Manager,Support'
+        ]);
+
+        $staff->update($validated);
+
+        return response()->json(['message' => 'Staff updated successfully.', 'staff' => $staff]);
+    }
+
+    public function destroy($id): JsonResponse
+    {
+        $admin = auth('staff')->user();
+        if (!$admin || $admin->role !== 'Admin') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $staff = Staff::findOrFail($id);
+        $staff->delete();
+
+        return response()->json(['message' => 'Staff deleted successfully.']);
+    }
 }

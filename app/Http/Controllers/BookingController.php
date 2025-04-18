@@ -97,4 +97,17 @@ class BookingController extends Controller
             return response()->json(['message' => 'Booking failed', 'error' => $e->getMessage()], 500);
         }
     }
+
+    public function confirmed(): JsonResponse
+{
+    $user = Auth::user();
+
+    // You can adjust this based on whether it's Customer or Staff
+    $bookings = $user->bookings()
+        ->whereIn('status', ['confirmed', 'completed'])
+        ->with('package') // if you want package info too
+        ->get();
+
+    return response()->json($bookings);
+}
 }

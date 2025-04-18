@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Customer;
+use App\Models\Loyalty;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -73,21 +74,11 @@ class CustomerController extends Controller
         return response()->json(['message' => 'Logged out successfully']);
     }
 
-    // public function index()
-    // {
-    //     return response()->json(Customer::all());
-    // }
-
-    // public function index()
-    // {
-    //     $customers = Customer::withCount('bookings')->get();
-
-    //     return response()->json($customers);
-    // }
 
     public function index()
     {
-        $customers = Customer::withCount('bookings')
+        $customers = Customer::with('loyalty')
+            ->withCount('bookings')
             ->withSum('loyaltyHistory as earned_points', 'points_earned')
             ->withSum('loyaltyHistory as redeemed_points', 'points_redeemed')
             ->get();
@@ -95,12 +86,21 @@ class CustomerController extends Controller
         return response()->json($customers);
     }
 
-    public function show(Customer $customer)
+    public function show(Customer $customer, Loyalty $loyalty)
     {
         return response()->json([
             'id' => $customer->id,
             'full_name' => $customer->full_name,
             'email' => $customer->email,
+            'phone' => $customer->phone,
+            'address' => $customer->address,
+            'country_of_residence' => $customer->country_of_residence,
+            'date_of_birth' => $customer->date_of_birth,
+            'bookings_count' => $customer->bookings()->count(),
+            'loyalty' => [
+                'earned_points' => $customer->loyalty->earned_points ?? 0,
+                'redeemed_points' => $customer->loyalty->redeemed_points ?? 0,
+            ]
         ]);
     }
 
@@ -131,12 +131,13 @@ class CustomerController extends Controller
     }
 
 
-    public function destroy(Customer $customer)
-    {
-        $customer->delete();
+    // public function destroy(Customer $customer)
+    // {
+    //     $customer->delete();
 
-        return response()->json(['message' => 'Customer deleted successfully']);
-    }
+    //     return response()->json(['message' => 'Customer deleted successfully']);
+    // }
+
     public function loyaltySummary(): JsonResponse
     {
         $customer = Auth::user();
