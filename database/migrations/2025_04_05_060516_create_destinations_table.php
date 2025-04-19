@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('country');
             $table->string('region')->nullable();
             $table->text('description')->nullable();
-            $table->string('thumbnail_url')->nullable();
+            $table->string('thumbnail_string')->nullable();
             $table->string('best_time_to_visit')->nullable();
             $table->timestamps();
         });

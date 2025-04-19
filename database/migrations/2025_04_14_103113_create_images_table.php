@@ -11,15 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('images', function (Blueprint $table) {
-            $table->id();
-            $table->string('filename');
-            $table->string('section')->nullable(); // e.g., 'homepage', 'about', 'footer'
-            $table->unsignedBigInteger('package_id')->nullable();
-            $table->timestamps();
+        // Schema::create('images', function (Blueprint $table) {
+        //     $table->id();
+        //     $table->string('filename');
+        //     $table->string('section')->nullable(); // e.g., 'homepage', 'about', 'footer'
+        //     $table->unsignedBigInteger('package_id')->nullable();
+        //     $table->timestamps();
 
-            $table->foreign('package_id')->references('id')->on('packages')->onDelete('cascade');
-        });
+            // $table->foreign('package_id')->references('id')->on('packages')->onDelete('cascade');
+        // });
     }
 
     /**
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('images');
+        // Schema::dropIfExists('images');
     }
 };

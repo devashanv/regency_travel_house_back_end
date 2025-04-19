@@ -144,6 +144,7 @@ Route::post('/customers/register', [CustomerController::class, 'register']);
 Route::post('/customers/login', [CustomerController::class, 'login']);
 Route::get('/all-packages-itineraries', [ItineraryController::class, 'allWithItineraries']);
 
+Route::get('/destinations/{id}/images', [ImageController::class, 'getImagesByDestination']);
 
 
 // Public Routes

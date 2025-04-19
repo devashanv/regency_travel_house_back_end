@@ -6,11 +6,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class Image extends Model
 {
-    protected $fillable = ['filename', 'section', 'package_id'];
+    protected $fillable = ['filename', 'section', 'package_id','destination_id'];
 
     public function package()
     {
         return $this->belongsTo(Package::class);
+    }
+
+    public function destination()
+    {
+        return $this->belongsTo(Destination::class);
     }
 }
 

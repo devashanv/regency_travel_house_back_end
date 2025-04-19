@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('quotes', function (Blueprint $table) {
-            $table->dropForeign(['destination_id']);
-            $table->dropColumn('destination_id');
+        // Schema::table('quotes', function (Blueprint $table) {
+        //     $table->dropForeign(['destination_id']);
+        //     $table->dropColumn('destination_id');
 
-            $table->foreignId('package_id')->after('customer_id')->constrained()->onDelete('cascade');
-        });
+            // $table->foreignId('package_id')->after('customer_id')->constrained()->onDelete('cascade');
+        // });
 
     }
 
@@ -25,8 +25,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('use_package_id', function (Blueprint $table) {
-            //
-        });
+        // Schema::table('use_package_id', function (Blueprint $table) {
+        //     //
+        // });
     }
 };

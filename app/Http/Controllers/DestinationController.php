@@ -36,7 +36,7 @@ class DestinationController extends Controller
             'country' => 'required|string|max:255',
             'region' => 'nullable|string|max:255',
             'description' => 'nullable|string',
-            'thumbnail_url' => 'nullable|url',
+            'thumbnail_string' => 'nullable|string',
             'best_time_to_visit' => 'nullable|string|max:255',
         ]);
 
@@ -60,7 +60,7 @@ class DestinationController extends Controller
             'country' => 'sometimes|string|max:255',
             'region' => 'nullable|string|max:255',
             'description' => 'nullable|string',
-            'thumbnail_url' => 'nullable|url',
+            'thumbnail_string' => 'nullable|string',
             'best_time_to_visit' => 'nullable|string|max:255',
         ]);
 

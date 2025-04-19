@@ -19,7 +19,8 @@ class ImageController extends Controller
         $request->validate([
             'image' => 'required|image|max:2048',
             'section' => 'nullable|string',
-            'package_id' => 'nullable|exists:packages,id'
+            'package_id' => 'nullable|exists:packages,id',
+            'destination_id' => 'nullable|exists:destinations,id'
         ]);
 
         $file = $request->file('image');
@@ -30,6 +31,7 @@ class ImageController extends Controller
             'filename' => $filename,
             'section' => $request->section,
             'package_id' => $request->package_id,
+            'destination_id' => $request->destination_id,
         ]);
 
         return response()->json(['message' => 'Image uploaded successfully', 'image' => $image]);
@@ -49,4 +51,19 @@ class ImageController extends Controller
 
         return response()->json(['message' => 'Image deleted']);
     }
+
+    // public function getImagesByDestination($destination_id)
+    // {
+    //     $images = Image::where('destination_id', $destination_id)->get();
+    //     return response()->json($images);
+    // }
+
+    public function getImagesByDestination($destination_id)
+{
+    $images = Image::where('destination_id', $destination_id)
+                   ->where('section', 'hero')
+                   ->get();
+    return response()->json($images);
+}
+
 }
