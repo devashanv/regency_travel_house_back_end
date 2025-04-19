@@ -129,6 +129,7 @@ use App\Http\Controllers\AdminQuoteController;
 use App\Http\Controllers\LoyaltyController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ImageController;
+use App\Http\Controllers\StaffDashboardController;
 
 
 /*Public Routes*/
@@ -331,4 +332,6 @@ Route::middleware(['auth:staff', 'staff.role:Admin,Manager'])->group(function ()
     // Customer Profiles
     Route::get('/admin/customers', [CustomerAuthController::class, 'all']);            // List all customers
     Route::get('/admin/customers/{id}', [CustomerAuthController::class, 'details']);   // View specific customer
+
+    Route::get('/dashboard/stats', [StaffDashboardController::class, 'index']);
 });

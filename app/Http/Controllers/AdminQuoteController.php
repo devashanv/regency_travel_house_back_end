@@ -7,6 +7,10 @@ use App\Models\Destination;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Mail\QuoteResponseMail;
+use Illuminate\Support\Facades\Mail;
+
+Mail::to($quote->customer->email)->send(new QuoteResponseMail($quote));
 
 class AdminQuoteController extends Controller
 {
@@ -159,7 +163,7 @@ class AdminQuoteController extends Controller
             'status' => 'required|in:responded,expired'
         ]);
 
-        $quote = Quote::find($id);
+        $quote = Quote::with('customer', 'package')->find($id);
 
         if (!$quote) {
             return response()->json(['message' => 'Quote not found'], 404);
@@ -175,9 +179,12 @@ class AdminQuoteController extends Controller
             'responded_by' => $staff->id
         ]);
 
+        Mail::to($quote->customer->email)->send(new QuoteResponseMail($quote));
+
         return response()->json([
-            'message' => 'Quote responded successfully.',
-            'quote' => $quote->load('customer', 'destination', 'respondedBy')
+            'message' => 'Quote responded and email sent.',
+            'quote' => $quote->load('customer','package', 'respondedBy')
         ]);
     }
+
 }
